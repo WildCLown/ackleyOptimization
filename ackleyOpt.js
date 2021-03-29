@@ -5,7 +5,7 @@ const d = 30;
 function print(x){
     console.log(x);
 }
-function calcAckley(x) {//x é um vetor
+function ackleyFit(x) {//x é um vetor
     var inF = 0;
     var inS = 0;
     for (var i = 0; i < d; i++) {
@@ -30,15 +30,51 @@ function generatePopulation(size){
         for(var i = 0; i<d;i++){
             x.push(generateNumber(-15,14));
         }
-        population.push(x);
+        population.push({'ind': x,'fitness':ackleyFit(x)});
     }
-    //console.log(x);
     return population;
 }
+function generateChildren(population){
+    var newPop = []
+    for(let i = 0; i< population.length; i++){
+        var children = [];
+        var parents = chooseParents(population);
+        var father = parents[0];
+        var mother = parents[1];
+        //console.log(i);
+        for(let j = 0; j<30; j++){
+            children.push((father.ind[j]+mother.ind[j])/2)
+        }
+        newPop.push({'ind':children,'fitness':ackleyFit(children)});
+    }
+    return newPop;
+}
+function chooseParents(population){
+    var father = Math.floor(generateNumber(0,population.length-1));
+    var mother = Math.floor(generateNumber(0,population.length-1));
+    return [population[father],population[mother]];
+}
+function mutate1(){
 
+}
+function mutate2(){
 
+}
+function mutate3(){
+    
+}
 function main(){
-    var population = generatePopulation(10);
-    //console.log(population)
+    var population = generatePopulation(100);
+    for(var i = 0; i<200000; i++){
+        population = generateChildren(population);
+
+
+        for(let inte in population){
+            if(population[inte].fitness < 7){
+                console.log("Best found in " + inte);
+                return population;
+            }
+        }
+    }
 }
 main();
