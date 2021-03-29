@@ -2,6 +2,12 @@ const a = 20;
 const b = 0.2;
 const c = 2 * Math.PI;
 const d = 30;
+
+const POPULATION = 100;
+const STEP_MUTATION = 0.5;
+const MINIMUM_MUTATED = POPULATION/4;
+
+
 function print(x){
     console.log(x);
 }
@@ -56,16 +62,17 @@ function chooseParents(population){
 }
 function mutate1(children){
     var startF = Math.floor(generateNumber(0,children.ind.length-1));
-    var quantity = Math.floor(generateNumber(0,children.ind.length-1)) -50;
+    var quantity = Math.floor(generateNumber(0,children.ind.length-1)) - 50;
     if(quantity < 1) quantity = 1;
-    for(let i = 0; i<quantity; i++){
-        let step = 1;
+    for(let i = 0; i<1; i++){
+        let step = STEP_MUTATION;
         let currC = children.ind[(startF+i)%children.ind.length];
         let minimumMutation = currC - step;
         let maximumMutation = currC + step;
         if(minimumMutation < -15) minimumMutation = -15;
         if(maximumMutation > 14) maximumMutation = 14;
-        children.ind[(startF+i)%children.ind.length] = generateNumber(minimumMutation,maximumMutation);
+        let index = (startF+i)%children.ind.length
+        children.ind[index] = generateNumber(minimumMutation,maximumMutation);
     }
     children.fitness = ackleyFit(children.ind);
     return children;
@@ -80,13 +87,13 @@ function myChernobyll(population){
     var mutants = population;
     var startF = Math.floor(generateNumber(0,population.length-1));
     var quantity = Math.floor(generateNumber(0,population.length-1));
-    for(let i = 0; i<quantity;i++){
+    for(let i = 0; i<(quantity + 10) % 101;i++){
         mutants[(startF+i)%mutants.length] = mutate1(mutants[(startF+i)%mutants.length]);
     }
     return mutants;
 }
 function main(){
-    var population = generatePopulation(100);
+    var population = generatePopulation(POPULATION);
     var goodFit = 17;
     for(var i = 0; i<200000; i++){
         population = generateChildren(population);
@@ -96,7 +103,7 @@ function main(){
             if(population[inte].fitness < goodFit){
                 if(i > 400)
                 console.log(i + "-Best found in " + population[inte].fitness);
-                goodFit = population[inte].fitness-.05;
+                goodFit = population[inte].fitness-.02;
             }
         }
     }
