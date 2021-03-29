@@ -56,9 +56,16 @@ function chooseParents(population){
 }
 function mutate1(children){
     var startF = Math.floor(generateNumber(0,children.ind.length-1));
-    var quantity = Math.floor(generateNumber(0,children.ind.length-1));
+    var quantity = Math.floor(generateNumber(0,children.ind.length-1)) -50;
+    if(quantity < 1) quantity = 1;
     for(let i = 0; i<quantity; i++){
-        children.ind[(startF+i)%children.ind.length] = generateNumber(-15,14);
+        let step = 1;
+        let currC = children.ind[(startF+i)%children.ind.length];
+        let minimumMutation = currC - step;
+        let maximumMutation = currC + step;
+        if(minimumMutation < -15) minimumMutation = -15;
+        if(maximumMutation > 14) maximumMutation = 14;
+        children.ind[(startF+i)%children.ind.length] = generateNumber(minimumMutation,maximumMutation);
     }
     children.fitness = ackleyFit(children.ind);
     return children;
@@ -87,8 +94,9 @@ function main(){
 
         for(let inte in population){
             if(population[inte].fitness < goodFit){
-                console.log("Best found in " + population[inte].fitness);
-                goodFit = population[inte].fitness-1;
+                if(i > 400)
+                console.log(i + "-Best found in " + population[inte].fitness);
+                goodFit = population[inte].fitness-.05;
             }
         }
     }
