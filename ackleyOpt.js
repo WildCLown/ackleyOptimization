@@ -7,21 +7,12 @@ function calcAckley(x) {//x é um vetor
     var inS = 0;
     for (var i = 0; i < d; i++) {
         inF += Math.pow(x[i],2);
-        inS += Math.cos((x[i]*c));
+        inS += Math.cos((c*x[i]));
     }
-    // console.log(inF);
-    // console.log(inS);
-    inF = ((-b) * (Math.sqrt(inF)));
-    inS = (inS/d);
-    console.log("inF : " + inF);
-    console.log("inS : " + inS);
-    var fiSide = -a * Math.exp(inF);
-    var secSide = Math.exp(inS) + a + Math.exp(1);
-    console.log("fiSide : "+ fiSide)
-    console.log("secSide : "+ secSide)
-    var result = fiSide - secSide;
-    var result = (-a * Math.exp(inF)) - Math.exp(inS) + a + Math.exp(1);
-    console.log("Result : " + result)
+    inF= ((-b) * (Math.sqrt(inF)))
+    inS = inS/d;
+    var result = (-a * Math.exp(inF)) + a - Math.exp(inS) + Math.E;
+    console.log(result);
     return result;
 }
 function makeX(){
@@ -31,4 +22,4 @@ function makeX(){
     }
     return fon;
 }
-console.log(calcAckley(makeX()))
+calcAckley(makeX())
