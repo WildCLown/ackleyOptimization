@@ -57,8 +57,8 @@ function chooseParents(population){
     return [population[father],population[mother]];
 }
 function mutate1(children){
-    var startF = generateNumber(0,children.ind.length-1);
-    var quantity = generateNumber(0,children.ind.length-1);
+    var startF = Math.floor(generateNumber(0,children.ind.length-1));
+    var quantity = Math.floor(generateNumber(0,children.ind.length-1));
     for(let i = 0; i<quantity; i++){
         children.ind[(startF+i)%children.ind.length] = generateNumber(-15,14);
     }
