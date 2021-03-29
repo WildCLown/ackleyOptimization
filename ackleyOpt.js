@@ -2,6 +2,7 @@ const a = 20;
 const b = 0.2;
 const c = 2 * Math.PI;
 const d = 30;
+var minFound = Number.MAX_VALUE;
 function print(x){
     console.log(x);
 }
@@ -15,6 +16,7 @@ function ackleyFit(x) {//x é um vetor
     inF= ((-b) * (Math.sqrt(inF)))
     inS = inS/d;
     var result = (-a * Math.exp(inF)) + a - Math.exp(inS) + Math.E;
+    minFound = Math.min(minFound,result);
     return result;
 }
 function generateNumber(min,max){
@@ -46,7 +48,7 @@ function generateChildren(population){
         newPop.push({'ind':children,'fitness':ackleyFit(children)});
     }
     newPop.sort((first,second) => (first.fitness > second.fitness) ? 1:-1);
-    newPop = newPop.slice(0,100);
+    newPop = newPop.slice(0,population.length);
     return newPop;
 }
 function chooseParents(population){
@@ -92,5 +94,6 @@ function main(){
             }
         }
     }
+    console.log("Any moment, was found : " + minFound);
 }
 main();
