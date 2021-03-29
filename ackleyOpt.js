@@ -15,7 +15,6 @@ function ackleyFit(x) {//x é um vetor
     inF= ((-b) * (Math.sqrt(inF)))
     inS = inS/d;
     var result = (-a * Math.exp(inF)) + a - Math.exp(inS) + Math.E;
-    console.log(result);
     return result;
 }
 function generateNumber(min,max){
@@ -36,17 +35,18 @@ function generatePopulation(size){
 }
 function generateChildren(population){
     var newPop = []
-    for(let i = 0; i< population.length; i++){
+    for(let i = 0; i< (7*population.length); i++){
         var children = [];
         var parents = chooseParents(population);
         var father = parents[0];
         var mother = parents[1];
-        //console.log(i);
         for(let j = 0; j<30; j++){
             children.push((father.ind[j]+mother.ind[j])/2)
         }
         newPop.push({'ind':children,'fitness':ackleyFit(children)});
     }
+    newPop.sort((first,second) => (first.fitness > second.fitness) ? 1:-1);
+    newPop = newPop.slice(0,100);
     return newPop;
 }
 function chooseParents(population){
@@ -54,8 +54,14 @@ function chooseParents(population){
     var mother = Math.floor(generateNumber(0,population.length-1));
     return [population[father],population[mother]];
 }
-function mutate1(){
-
+function mutate1(children){
+    var startF = generateNumber(0,children.ind.length-1);
+    var quantity = generateNumber(0,children.ind.length-1);
+    for(let i = 0; i<quantity; i++){
+        children.ind[(startF+i)%children.ind.length] = generateNumber(-15,14);
+    }
+    children.fitness = ackleyFit(children.ind);
+    return children;
 }
 function mutate2(){
 
@@ -63,16 +69,26 @@ function mutate2(){
 function mutate3(){
     
 }
+function myChernobyll(population){
+    var mutants = population;
+    var startF = Math.floor(generateNumber(0,population.length-1));
+    var quantity = Math.floor(generateNumber(0,population.length-1));
+    for(let i = 0; i<quantity;i++){
+        mutants[(startF+i)%mutants.length] = mutate1(mutants[(startF+i)%mutants.length]);
+    }
+    return mutants;
+}
 function main(){
     var population = generatePopulation(100);
+    var goodFit = 17;
     for(var i = 0; i<200000; i++){
         population = generateChildren(population);
-
+        population = myChernobyll(population);
 
         for(let inte in population){
-            if(population[inte].fitness < 7){
-                console.log("Best found in " + inte);
-                return population;
+            if(population[inte].fitness < goodFit){
+                console.log("Best found in " + population[inte].fitness);
+                goodFit = population[inte].fitness-1;
             }
         }
     }
