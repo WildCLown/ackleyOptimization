@@ -2,6 +2,9 @@ const a = 20;
 const b = 0.2;
 const c = 2 * Math.PI;
 const d = 30;
+const t = 1 / Math.sqrt(d);
+const t2 = 1 / Math.sqrt(2 * Math.sqrt(d));
+const t2linha = 1 / Math.sqrt(2 * d)
 ////////////////////////////
 const POPULATION = 200;
 const POP_MUTATE = 25;
@@ -9,7 +12,7 @@ const OVERPARENTS = 20;
 var STEP_MUTATION = 1;
 var XY_QUANTITY = 1;
 const ATTEMPTS = 200000;
-const MINIMUM_MUTATED = POPULATION/4;
+const MINIMUM_MUTATED = POPULATION;
 
 
 function print(x){
@@ -78,17 +81,73 @@ function mutate1(children){
     children.fitness = ackleyFit(children.ind);
     return children;
 }
-function mutate2(){
 
+function calculateStd(list){
+    let mean = list.reduce((total, value) => total+value/list.length, 0);
+    let variance = list.reduce((total, value) => total + Math.pow(mean - value, 2)/list.length, 0);
+    return Math.sqrt(variance);
 }
-function mutate3(){
+
+function mutate2(child){ //mutação nao correlacionada 1 desvio
+    var std = calculateStd(child.ind);
+    std = std * Math.exp(t * Math.random());
+    
+    mutatedChild = []
+    for(var i = 0; i < child.ind.length; i++) {
+        var mutatedStep = std * generateNumber(-1, 0);
+
+        var mutatedGene = child.ind[i] + mutatedStep;
+        
+        if(mutatedGene > 15) {
+            mutatedGene = 15;
+        }else if(mutatedGene < -15) {
+            mutatedGene = -15;
+        }
+        mutatedChild.push(mutatedGene);
+    }
+
+    var mutatedFitness = ackleyFit(mutatedChild);
+    if(mutatedFitness < child.fitness) {
+        child.ind = mutatedChild;
+        child.fit = mutatedFitness;
+    }
+
+    return child;
+}
+
+function mutate3(child){// //mutação nao correlacionada n desvio
+    var std = calculateStd(child.ind);
+    std = std * Math.exp( (t2linha* Math.random()) + (t2 * Math.random()));
+
+    mutatedChild = []
+    for(var i = 0; i < child.ind.length; i++) {
+        var mutatedStep = std * generateNumber(-1, 0);
+
+        var mutatedGene = child.ind[i] + mutatedStep;
+        
+        if(mutatedGene > 15) {
+            mutatedGene = 15;
+        }else if(mutatedGene < -15) {
+            mutatedGene = -15;
+        }
+        mutatedChild.push(mutatedGene);
+    }
+
+    var mutatedFitness = ackleyFit(mutatedChild);
+    if(mutatedFitness < child.fitness) {
+        child.ind = mutatedChild;
+        child.fit = mutatedFitness;
+    }
+
+    return child;
     
 }
+
 function myChernobyll(population){
     var mutants = population;
     var startF = Math.floor(generateNumber(0,population.length-1));
     for(let i = 0; i<MINIMUM_MUTATED;i++){
-        mutants[(startF+i)%mutants.length] = mutate1(mutants[(startF+i)%mutants.length]);
+        mutants[(startF+i)%mutants.length] = mutate3(mutants[(startF+i)%mutants.length]);
     }
     return mutants;
 }
@@ -106,10 +165,12 @@ function main(){
             if(population[inte].fitness < goodFit){
                 bestChild = population[inte];
                 bestChild.iteration = parseInt(inte);
-                if(i > 400)
+                //if(i > 20000)
                 console.log(i + "-Best found in " + population[inte].fitness);
-                goodFit = population[inte].fitness-.02;
+                goodFit = population[inte].fitness;
                 //console.log(population[inte].ind);
+                //0.00007
+                //0.00001
             }
         }
         if(previewFit == goodFit){
@@ -124,15 +185,16 @@ function main(){
         //     //console.log("NEW STEP IS : " + STEP_MUTATION);
         //     console.log("NEW XY IS : " + XY_QUANTITY);
         // }
-        if(demongorgon == 10000){
-                STEP_MUTATION = STEP_MUTATION/10;
-                console.log("NEW STEP IS : " + STEP_MUTATION);
-                demongorgon = 0;
-        }
-        if(i%10000 == 0){
-            console.log(goodFit+.02)
-        }
+        // if(demongorgon == 10000){
+        //         STEP_MUTATION = STEP_MUTATION/10;
+        //         console.log("NEW STEP IS : " + STEP_MUTATION);
+        //         demongorgon = 0;
+        // }
+        // if(i%10000 == 0){
+        //     console.log(goodFit+.02)
+        // }
     }
+    console.log(goodFit);
     return bestChild;
 }
 function statistics(tryes = 10){
