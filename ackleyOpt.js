@@ -2,9 +2,13 @@ const a = 20;
 const b = 0.2;
 const c = 2 * Math.PI;
 const d = 30;
-
-const POPULATION = 100;
-const STEP_MUTATION = 0.5;
+////////////////////////////
+const POPULATION = 200;
+const POP_MUTATE = 25;
+const OVERPARENTS = 20;
+var STEP_MUTATION = 1;
+var XY_QUANTITY = 1;
+const ATTEMPTS = 200000;
 const MINIMUM_MUTATED = POPULATION/4;
 
 
@@ -25,7 +29,6 @@ function ackleyFit(x) {//x é um vetor
 }
 function generateNumber(min,max){
     var gen = Math.random() * (max - min + 1) + min
-    //gen = gen.toFixed(4);
     return gen;
 }
 function generatePopulation(size){
@@ -41,7 +44,7 @@ function generatePopulation(size){
 }
 function generateChildren(population){
     var newPop = []
-    for(let i = 0; i< (7*population.length); i++){
+    for(let i = 0; i< (OVERPARENTS*population.length); i++){
         var children = [];
         var parents = chooseParents(population);
         var father = parents[0];
@@ -62,9 +65,7 @@ function chooseParents(population){
 }
 function mutate1(children){
     var startF = Math.floor(generateNumber(0,children.ind.length-1));
-    var quantity = Math.floor(generateNumber(0,children.ind.length-1)) - 50;
-    if(quantity < 1) quantity = 1;
-    for(let i = 0; i<1; i++){
+    for(let i = 0; i<XY_QUANTITY; i++){
         let step = STEP_MUTATION;
         let currC = children.ind[(startF+i)%children.ind.length];
         let minimumMutation = currC - step;
@@ -86,8 +87,7 @@ function mutate3(){
 function myChernobyll(population){
     var mutants = population;
     var startF = Math.floor(generateNumber(0,population.length-1));
-    var quantity = Math.floor(generateNumber(0,population.length-1));
-    for(let i = 0; i<(quantity + 10) % 101;i++){
+    for(let i = 0; i<MINIMUM_MUTATED;i++){
         mutants[(startF+i)%mutants.length] = mutate1(mutants[(startF+i)%mutants.length]);
     }
     return mutants;
@@ -95,17 +95,79 @@ function myChernobyll(population){
 function main(){
     var population = generatePopulation(POPULATION);
     var goodFit = 17;
-    for(var i = 0; i<200000; i++){
+    var previewFit = goodFit;
+    var demongorgon = 0;
+    var bestChild;
+    for(var i = 0; i<ATTEMPTS; i++){
         population = generateChildren(population);
         population = myChernobyll(population);
 
         for(let inte in population){
             if(population[inte].fitness < goodFit){
+                bestChild = population[inte];
+                bestChild.iteration = parseInt(inte);
                 if(i > 400)
                 console.log(i + "-Best found in " + population[inte].fitness);
                 goodFit = population[inte].fitness-.02;
+                //console.log(population[inte].ind);
             }
         }
+        if(previewFit == goodFit){
+            demongorgon++;
+        }else{
+            previewFit = goodFit;
+            demongorgon = 0;
+        }
+        // if(demongorgon == 10000){
+        //     //STEP_MUTATION = STEP_MUTATION + 0.2;
+        //     XY_QUANTITY++;
+        //     //console.log("NEW STEP IS : " + STEP_MUTATION);
+        //     console.log("NEW XY IS : " + XY_QUANTITY);
+        // }
+        if(demongorgon == 10000){
+                STEP_MUTATION = STEP_MUTATION/10;
+                console.log("NEW STEP IS : " + STEP_MUTATION);
+                demongorgon = 0;
+        }
+        if(i%10000 == 0){
+            console.log(goodFit+.02)
+        }
     }
+    return bestChild;
 }
+function statistics(tryes = 10){
+    var toCalc = [];
+    var bullseye = 0;
+    var bullMean = 0;
+
+    var bullseye3 = 0;
+    var bullMean3 = 0;
+    var bullseye2 = 0;
+    var bullMean2 = 0;
+    for(var i = 0; i< tryes; i++){
+        console.log("############# ITERACTION " + (i+1) + " STARTED #############");
+        toCalc.push(main());
+        if(toCalc[i].fitness == 0){
+            bullseye++;
+            bullMean += toCalc[i].iteration;
+        }
+        if(toCalc[i].fitness <= 0.009999){
+            bullseye3++;
+            bullMean3 += toCalc[i].iteration;
+        }
+        if(toCalc[i].fitness <= 0.099999){
+            bullseye2++;
+            bullMean2 += toCalc[i].iteration;
+        }
+    }
+
+    console.log(toCalc);
+    console.log("Accuracy of : " + ((bullseye/tryes)*100) + "% aiming 0");
+    console.log("Mean of converged Iterations : " + (bullMean/tryes) + " aiming 0");
+    console.log("Accuracy of : " + ((bullseye3/tryes)*100) + "% aiming lesser than 0.009999");
+    console.log("Mean of converged Iterations : " + (bullMean3/tryes) + " aiming lesser than 0.009999");
+    console.log("Accuracy of : " + ((bullseye2/tryes)*100) + "% aiming lesser than 0.09999");
+    console.log("Mean of converged Iterations : " + (bullMean2/tryes) + " aiming lesser than 0.09999");
+}
+//statistics();
 main();
