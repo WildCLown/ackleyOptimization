@@ -9,10 +9,10 @@ const t2linha = 1 / Math.sqrt(2 * d)
 const POPULATION = 200;
 const POP_MUTATE = 25;
 const OVERPARENTS = 20;
-var STEP_MUTATION = 1;
+var STEP_MUTATION = .5;
 var XY_QUANTITY = 1;
 const ATTEMPTS = 200000;
-const MINIMUM_MUTATED = POPULATION;
+const MINIMUM_MUTATED = POPULATION/4;
 
 
 function print(x){
@@ -92,7 +92,7 @@ function mutate2(child){ //mutação nao correlacionada 1 desvio
     var std = calculateStd(child.ind);
     std = std * Math.exp(t * Math.random());
     
-    mutatedChild = []
+    var mutatedChild = []
     for(var i = 0; i < child.ind.length; i++) {
         var mutatedStep = std * generateNumber(-1, 0);
 
@@ -147,7 +147,7 @@ function myChernobyll(population){
     var mutants = population;
     var startF = Math.floor(generateNumber(0,population.length-1));
     for(let i = 0; i<MINIMUM_MUTATED;i++){
-        mutants[(startF+i)%mutants.length] = mutate3(mutants[(startF+i)%mutants.length]);
+        mutants[(startF+i)%mutants.length] = mutate1(mutants[(startF+i)%mutants.length]);
     }
     return mutants;
 }
@@ -164,7 +164,7 @@ function main(){
         for(let inte in population){
             if(population[inte].fitness < goodFit){
                 bestChild = population[inte];
-                bestChild.iteration = parseInt(inte);
+                bestChild.iteration = parseInt(i);
                 //if(i > 20000)
                 console.log(i + "-Best found in " + population[inte].fitness);
                 goodFit = population[inte].fitness;
@@ -231,5 +231,5 @@ function statistics(tryes = 10){
     console.log("Accuracy of : " + ((bullseye2/tryes)*100) + "% aiming lesser than 0.09999");
     console.log("Mean of converged Iterations : " + (bullMean2/tryes) + " aiming lesser than 0.09999");
 }
-//statistics();
-main();
+statistics();
+//main();
